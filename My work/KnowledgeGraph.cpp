@@ -4,30 +4,45 @@
 // Class Edge Implementation
 // =============================================================================
 
+template<class T>
+Edge<T>::Edge()
+{
+    this->from = nullptr;
+    this->to = nullptr;
+    this->weight = 0.0f;
+}
 
-// HAGO gay vl
+template<class T> Edge<T>::~Edge()
+{
+    delete this->from;
+    delete this->to;
+    this->weight = 0.0f;
+}
+
 template <class T>
-Edge<T>::Edge(VertexNode<T>* from, VertexNode<T>* to, float weight) {
+Edge<T>::Edge(VertexNode<T> *from, VertexNode<T> *to, float weight)
+{
     this->from = from;
     this->to = to;
     this->weight = weight;
 }
 
 template <class T>
-string Edge<T>::toString() {
+string Edge<T>::toString()
+{
     // TODO: Return the string representation of the edge
     return "";
 }
 
 // TODO: Implement other methods of Edge:
 
-
 // =============================================================================
 // Class VertexNode Implementation
 // =============================================================================
 
 template <class T>
-VertexNode<T>::VertexNode(T vertex, bool (*vertexEQ)(T&, T&), string (*vertex2str)(T&)) {
+VertexNode<T>::VertexNode(T vertex, bool (*vertexEQ)(T &, T &), string (*vertex2str)(T &))
+{
     this->vertex = vertex;
     this->vertexEQ = vertexEQ;
     this->vertex2str = vertex2str;
@@ -36,7 +51,8 @@ VertexNode<T>::VertexNode(T vertex, bool (*vertexEQ)(T&, T&), string (*vertex2st
 }
 
 template <class T>
-void VertexNode<T>::connect(VertexNode<T>* to, float weight) {
+void VertexNode<T>::connect(VertexNode<T> *to, float weight)
+{
     // TODO: Connect this vertex to the 'to' vertex
 }
 
@@ -45,25 +61,28 @@ void VertexNode<T>::connect(VertexNode<T>* to, float weight) {
 // =============================================================================
 
 template <class T>
-DGraphModel<T>::DGraphModel(bool (*vertexEQ)(T&, T&), string (*vertex2str)(T&)) {
+DGraphModel<T>::DGraphModel(bool (*vertexEQ)(T &, T &), string (*vertex2str)(T &))
+{
     this->vertexEQ = vertexEQ;
     this->vertex2str = vertex2str;
 }
 
 template <class T>
-DGraphModel<T>::~DGraphModel() {
+DGraphModel<T>::~DGraphModel()
+{
     // TODO: Clear all vertices and edges to avoid memory leaks
 }
 
 template <class T>
-void DGraphModel<T>::add(T vertex) {
+void DGraphModel<T>::add(T vertex)
+{
     // TODO: Add a new vertex to the graph
 }
 
 template <class T>
-void DGraphModel<T>::connect(T from, T to, float weight) {
+void DGraphModel<T>::connect(T from, T to, float weight)
+{
     // TODO: Connect two vertices 'from' and 'to'
-
 }
 
 // TODO: Implement other methods of DGraphModel:
@@ -72,21 +91,22 @@ void DGraphModel<T>::connect(T from, T to, float weight) {
 // Class KnowledgeGraph Implementation
 // =============================================================================
 
-KnowledgeGraph::KnowledgeGraph() {
+KnowledgeGraph::KnowledgeGraph()
+{
     // TODO: Initialize the KnowledgeGraph
 }
 
-void KnowledgeGraph::addEntity(string entity) {
+void KnowledgeGraph::addEntity(string entity)
+{
     // TODO: Add a new entity to the Knowledge Graph
 }
 
-void KnowledgeGraph::addRelation(string from, string to, float weight) {
+void KnowledgeGraph::addRelation(string from, string to, float weight)
+{
     // TODO: Add a directed relation
 }
 
 // TODO: Implement other methods of KnowledgeGraph:
-
-
 
 // =============================================================================
 // Explicit Template Instantiation
