@@ -4,6 +4,8 @@
 // Class Edge Implementation
 // =============================================================================
 
+
+// HAGO gay vl
 template <class T>
 Edge<T>::Edge(VertexNode<T>* from, VertexNode<T>* to, float weight) {
     this->from = from;
