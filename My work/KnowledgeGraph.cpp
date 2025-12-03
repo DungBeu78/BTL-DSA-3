@@ -4,7 +4,7 @@
 // Class Edge Implementation
 // =============================================================================
 
-template<class T>
+template <class T>
 Edge<T>::Edge()
 {
     this->from = nullptr;
@@ -12,7 +12,8 @@ Edge<T>::Edge()
     this->weight = 0.0f;
 }
 
-template<class T> Edge<T>::~Edge()
+template <class T>
+Edge<T>::~Edge()
 {
     delete this->from;
     delete this->to;
@@ -25,6 +26,12 @@ Edge<T>::Edge(VertexNode<T> *from, VertexNode<T> *to, float weight)
     this->from = from;
     this->to = to;
     this->weight = weight;
+}
+
+template <class T>
+bool Edge<T>::equals(Edge<T> *edge)
+{
+    return (this->from == edge->from && this->to == edge->to);
 }
 
 template <class T>
@@ -51,9 +58,31 @@ VertexNode<T>::VertexNode(T vertex, bool (*vertexEQ)(T &, T &), string (*vertex2
 }
 
 template <class T>
+T &VertexNode<T>::getVertex()
+{
+    return *this->vertex;
+}
+
+template <class T>
 void VertexNode<T>::connect(VertexNode<T> *to, float weight)
 {
     // TODO: Connect this vertex to the 'to' vertex
+    Edge<T> *newEdge = new Edge<T>(this, to, weight);
+
+    this->adList.push_back(newEdge);
+
+    // Update data
+    to->inDegree_++;
+    this->outDegree_++;
+}
+
+template <class T>
+Edge<T> *VertexNode<T>::getEdge(VertexNode<T> *to)
+{
+    for (Edge<T> *edge : this->adList)
+        if (edge->to == to)
+            return edge;
+    return nullptr;
 }
 
 // =============================================================================

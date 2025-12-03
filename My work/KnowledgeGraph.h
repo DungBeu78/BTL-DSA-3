@@ -30,7 +30,7 @@ public:
     Edge(VertexNode<T> *from = nullptr, VertexNode<T> *to = nullptr, float weight = 0);
 
     bool equals(Edge<T> *edge);
-    static bool edgeEQ(Edge<T> *&edge1, Edge<T> *&edge2);
+    static bool edgeEQ(Edge<T> *&edge1, Edge<T> *&edge2) { return edge1->equals(edge2); }
     string toString();
 
     friend class VertexNode<T>;
