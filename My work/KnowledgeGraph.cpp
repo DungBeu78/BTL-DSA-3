@@ -34,6 +34,7 @@ bool Edge<T>::equals(Edge<T> *edge)
     return (this->from == edge->from && this->to == edge->to);
 }
 
+// Not implement
 template <class T>
 string Edge<T>::toString()
 {
@@ -84,6 +85,57 @@ Edge<T> *VertexNode<T>::getEdge(VertexNode<T> *to)
             return edge;
     return nullptr;
 }
+
+template<class T>
+bool VertexNode<T>::equals(VertexNode<T> *node)
+{
+    return this->vertexEQ(this->vertex, node->vertex);
+}
+
+template<class T>
+void VertexNode<T>::removeTo(VertexNode<T> *to)
+{
+    Edge<T> *toRemove = this->getEdge(to);
+
+    if (toRemove == nullptr)
+        return;
+    
+    // Update data
+    this->outDegree_--;
+    to->inDegree_--;
+
+    for (auto it = this->adList.begin(); it != this->adList.end(); it++)
+    {
+        if (*it == toRemove)
+        {
+            this->adList.erase(it);
+            break;
+        }
+    }
+
+    // Remove
+    delete toRemove;
+}
+
+template<class T>
+int VertexNode<T>::inDegree()
+{
+    return this->inDegree_;
+}
+
+template<class T>
+int VertexNode<T>::outDegree()
+{
+    return this->outDegree_;
+}
+
+// Not implement
+template<class T>
+std::string VertexNode<T>::toString()
+{
+    return "";
+}
+
 
 // =============================================================================
 // Class DGraphModel Implementation
