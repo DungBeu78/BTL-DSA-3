@@ -159,15 +159,10 @@ template <class T>
 DGraphModel<T>::~DGraphModel()
 {
     // TODO: Clear all vertices and edges to avoid memory leaks
-    for (VertexNode<T> *vertex : this->nodeList)
-    {
-        for (Edge<T> *edge : vertex->adList)
-            delete edge;
-        delete vertex;
-    }
-
-    this->nodeList.clear();
+    this->clear();
 }
+
+// TODO: Implement other methods of DGraphModel:
 
 template <class T>
 VertexNode<T> *DGraphModel<T>::getVertexNode(T &vertex)
@@ -229,7 +224,7 @@ float DGraphModel<T>::weight(T from, T to)
     // Throw exception
     if (fromNode == nullptr || toNode == nullptr)
         throw VertexNotFoundException();
-    
+
     // Find edge
     Edge<T> *edge = fromNode->getEdge(toNode);
 
@@ -241,7 +236,7 @@ float DGraphModel<T>::weight(T from, T to)
 }
 
 // Not implement
-template<class T>
+template <class T>
 std::vector<T> DGraphModel<T>::getOutwardEdges(T from)
 {
     // Find vertex from
@@ -250,19 +245,18 @@ std::vector<T> DGraphModel<T>::getOutwardEdges(T from)
     // Throw exception
     if (fromNode == nullptr)
         throw VertexNotFoundException();
-    
+
     return fromNode->getOutwardEdges();
 
     // Should return in vector<Edge<T> *> ???
 }
 
-// Not implement
 template <class T>
 void DGraphModel<T>::connect(T from, T to, float weight)
 {
     // TODO: Connect two vertices 'from' and 'to'
 
-    // Find vertex from
+    // Find vertex from and to
     VertexNode<T> *fromNode = this->getVertexNode(from);
     VertexNode<T> *toNode = this->getVertexNode(to);
 
@@ -270,10 +264,119 @@ void DGraphModel<T>::connect(T from, T to, float weight)
     if (fromNode == nullptr || toNode == nullptr)
         throw VertexNotFoundException();
 
-
+    fromNode->connect(toNode, weight);
 }
 
-// TODO: Implement other methods of DGraphModel:
+template <class T>
+void DGraphModel<T>::disconnect(T from, T to)
+{
+    // Find vertex from and to
+    VertexNode<T> *fromNode = this->getVertexNode(from);
+    VertexNode<T> *toNode = this->getVertexNode(to);
+
+    // Throw exception
+    if (fromNode == nullptr || toNode == nullptr)
+        throw VertexNotFoundException();
+
+    fromNode->removeTo(toNode);
+}
+
+template <class T>
+bool DGraphModel<T>::connected(T from, T to)
+{
+    // Find vertex from and to
+    VertexNode<T> *fromNode = this->getVertexNode(from);
+    VertexNode<T> *toNode = this->getVertexNode(to);
+
+    // Throw exception
+    if (fromNode == nullptr || toNode == nullptr)
+        throw VertexNotFoundException();
+
+    return (fromNode->getEdge(to) != nullptr);
+}
+
+template <class T>
+int DGraphModel<T>::size()
+{
+    return this->nodeList.size();
+}
+
+template <class T>
+bool DGraphModel<T>::empty()
+{
+    return (this->nodeList.size() == 0);
+}
+
+template <class T>
+void DGraphModel<T>::clear()
+{
+    for (VertexNode<T> *vertex : this->nodeList)
+    {
+        for (Edge<T> *edge : vertex->adList)
+            delete edge;
+        delete vertex;
+    }
+
+    this->nodeList.clear();
+}
+
+template <class T>
+int DGraphModel<T>::inDegree(T vertex)
+{
+    // Find vertex
+    VertexNode<T> *current = this->getVertexNode(vertex);
+
+    // Throw exception
+    if (current == nullptr)
+        throw VertexNotFoundException();
+
+    return current->inDegree();
+}
+
+template <class T>
+int DGraphModel<T>::outDegree(T vertex)
+{
+    // Find vertex
+    VertexNode<T> *current = this->getVertexNode(vertex);
+
+    // Throw exception
+    if (current == nullptr)
+        throw VertexNotFoundException();
+
+    return current->outDegree();
+}
+
+template <class T>
+std::vector<T> DGraphModel<T>::vertices()
+{
+    vector<T> result;
+
+    for (VertexNode<T> *ver : nodeList)
+        result.push_back(ver->vertex);
+
+    return result;
+}
+
+// Not implement
+template <class T>
+std::string DGraphModel<T>::toString()
+{
+    return "";
+}
+
+// Not implement
+template <class T>
+std::string DGraphModel<T>::BFS(T start)
+{
+    return "";
+}
+
+// Not implement
+template <class T>
+std::string DGraphModel<T>::DFS(T start)
+{
+    return "";
+}
 
 // =============================================================================
 // Class KnowledgeGraph Implementation
