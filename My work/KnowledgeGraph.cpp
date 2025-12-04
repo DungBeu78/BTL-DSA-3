@@ -128,6 +128,22 @@ std::string VertexNode<T>::toString()
     return "";
 }
 
+// Not implement
+template <class T>
+std::vector<T> VertexNode<T>::getOutwardEdges()
+{
+    // vector<T> result;
+
+    // for (Edge<T>* edge : this->adList)
+    //     result.push_back(edge->to->vertex);
+
+    // return result;
+
+    return this->adList;
+
+    // Should return in vector<Edge<T> *> ???
+}
+
 // =============================================================================
 // Class DGraphModel Implementation
 // =============================================================================
@@ -143,9 +159,9 @@ template <class T>
 DGraphModel<T>::~DGraphModel()
 {
     // TODO: Clear all vertices and edges to avoid memory leaks
-    for (auto vertex : this->nodeList)
+    for (VertexNode<T> *vertex : this->nodeList)
     {
-        for (auto edge : vertex->adList)
+        for (Edge<T> *edge : vertex->adList)
             delete edge;
         delete vertex;
     }
@@ -156,7 +172,7 @@ DGraphModel<T>::~DGraphModel()
 template <class T>
 VertexNode<T> *DGraphModel<T>::getVertexNode(T &vertex)
 {
-    for (auto current : this->nodeList)
+    for (VertexNode<T> *current : this->nodeList)
     {
         if (this->vertexEQ(current->vertex, vertex))
             return current;
@@ -173,7 +189,7 @@ std::string DGraphModel<T>::vertex2Str(VertexNode<T> &node)
 }
 
 // Not implement
-template<class T>
+template <class T>
 std::string DGraphModel<T>::edge2Str(Edge<T> &edge)
 {
     return "";
@@ -186,16 +202,16 @@ void DGraphModel<T>::add(T vertex)
     if (this->contains(vertex))
         return;
 
-    VertexNode<T>* newNode = new VertexNode<T>(vertex, this->vertexEQ, this->vertex2str);
+    VertexNode<T> *newNode = new VertexNode<T>(vertex, this->vertexEQ, this->vertex2str);
 
     // Add
     this->nodeList.push_back(newNode);
 }
 
-template<class T>
+template <class T>
 bool DGraphModel<T>::contains(T vertex)
 {
-    for (auto current : this->nodeList)
+    for (VertexNode<T> *current : this->nodeList)
     {
         if (this->vertexEQ(current->vertex, vertex))
             return true;
@@ -203,11 +219,58 @@ bool DGraphModel<T>::contains(T vertex)
     return false;
 }
 
+template <class T>
+float DGraphModel<T>::weight(T from, T to)
+{
+    // Find vertex from and to
+    VertexNode<T> *fromNode = this->getVertexNode(from);
+    VertexNode<T> *toNode = this->getVertexNode(to);
 
+    // Throw exception
+    if (fromNode == nullptr || toNode == nullptr)
+        throw VertexNotFoundException();
+    
+    // Find edge
+    Edge<T> *edge = fromNode->getEdge(toNode);
+
+    // Throw exception
+    if (edge == nullptr)
+        throw EdgeNotFoundException();
+
+    return edge->weight;
+}
+
+// Not implement
+template<class T>
+std::vector<T> DGraphModel<T>::getOutwardEdges(T from)
+{
+    // Find vertex from
+    VertexNode<T> *fromNode = this->getVertexNode(from);
+
+    // Throw exception
+    if (fromNode == nullptr)
+        throw VertexNotFoundException();
+    
+    return fromNode->getOutwardEdges();
+
+    // Should return in vector<Edge<T> *> ???
+}
+
+// Not implement
 template <class T>
 void DGraphModel<T>::connect(T from, T to, float weight)
 {
     // TODO: Connect two vertices 'from' and 'to'
+
+    // Find vertex from
+    VertexNode<T> *fromNode = this->getVertexNode(from);
+    VertexNode<T> *toNode = this->getVertexNode(to);
+
+    // Throw exception
+    if (fromNode == nullptr || toNode == nullptr)
+        throw VertexNotFoundException();
+
+
 }
 
 // TODO: Implement other methods of DGraphModel:

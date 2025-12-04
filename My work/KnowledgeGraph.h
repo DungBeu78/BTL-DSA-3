@@ -67,6 +67,8 @@ public:
     int outDegree();
     string toString();
 
+    vector<T> getOutwardEdges();
+
     friend class Edge<T>;
     friend class DGraphModel<T>;
 };
