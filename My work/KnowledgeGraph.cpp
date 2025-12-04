@@ -13,14 +13,6 @@ Edge<T>::Edge()
 }
 
 template <class T>
-Edge<T>::~Edge()
-{
-    delete this->from;
-    delete this->to;
-    this->weight = 0.0f;
-}
-
-template <class T>
 Edge<T>::Edge(VertexNode<T> *from, VertexNode<T> *to, float weight)
 {
     this->from = from;
@@ -86,20 +78,20 @@ Edge<T> *VertexNode<T>::getEdge(VertexNode<T> *to)
     return nullptr;
 }
 
-template<class T>
+template <class T>
 bool VertexNode<T>::equals(VertexNode<T> *node)
 {
     return this->vertexEQ(this->vertex, node->vertex);
 }
 
-template<class T>
+template <class T>
 void VertexNode<T>::removeTo(VertexNode<T> *to)
 {
     Edge<T> *toRemove = this->getEdge(to);
 
     if (toRemove == nullptr)
         return;
-    
+
     // Update data
     this->outDegree_--;
     to->inDegree_--;
@@ -117,25 +109,24 @@ void VertexNode<T>::removeTo(VertexNode<T> *to)
     delete toRemove;
 }
 
-template<class T>
+template <class T>
 int VertexNode<T>::inDegree()
 {
     return this->inDegree_;
 }
 
-template<class T>
+template <class T>
 int VertexNode<T>::outDegree()
 {
     return this->outDegree_;
 }
 
 // Not implement
-template<class T>
+template <class T>
 std::string VertexNode<T>::toString()
 {
     return "";
 }
-
 
 // =============================================================================
 // Class DGraphModel Implementation
@@ -152,13 +143,66 @@ template <class T>
 DGraphModel<T>::~DGraphModel()
 {
     // TODO: Clear all vertices and edges to avoid memory leaks
+    for (auto vertex : this->nodeList)
+    {
+        for (auto edge : vertex->adList)
+            delete edge;
+        delete vertex;
+    }
+
+    this->nodeList.clear();
+}
+
+template <class T>
+VertexNode<T> *DGraphModel<T>::getVertexNode(T &vertex)
+{
+    for (auto current : this->nodeList)
+    {
+        if (this->vertexEQ(current->vertex, vertex))
+            return current;
+    }
+
+    return nullptr;
+}
+
+// Not implement
+template <class T>
+std::string DGraphModel<T>::vertex2Str(VertexNode<T> &node)
+{
+    return "";
+}
+
+// Not implement
+template<class T>
+std::string DGraphModel<T>::edge2Str(Edge<T> &edge)
+{
+    return "";
 }
 
 template <class T>
 void DGraphModel<T>::add(T vertex)
 {
     // TODO: Add a new vertex to the graph
+    if (this->contains(vertex))
+        return;
+
+    VertexNode<T>* newNode = new VertexNode<T>(vertex, this->vertexEQ, this->vertex2str);
+
+    // Add
+    this->nodeList.push_back(newNode);
 }
+
+template<class T>
+bool DGraphModel<T>::contains(T vertex)
+{
+    for (auto current : this->nodeList)
+    {
+        if (this->vertexEQ(current->vertex, vertex))
+            return true;
+    }
+    return false;
+}
+
 
 template <class T>
 void DGraphModel<T>::connect(T from, T to, float weight)

@@ -25,7 +25,6 @@ private:
 
 public:
     Edge();
-    ~Edge();
 
     Edge(VertexNode<T> *from = nullptr, VertexNode<T> *to = nullptr, float weight = 0);
 
