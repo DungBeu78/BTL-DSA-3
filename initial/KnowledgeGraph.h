@@ -91,7 +91,7 @@ public:
     void add(T vertex);
     bool contains(T vertex);
     float weight(T from, T to);
-    vector<T> getOutwardEdges(T from);
+    vector<Edge<T>*> getOutwardEdges(T from);
     
     void connect(T from, T to, float weight = 0);
     void disconnect(T from, T to);
