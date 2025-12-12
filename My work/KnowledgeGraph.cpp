@@ -31,21 +31,11 @@ bool Edge<T>::equals(Edge<T> *edge)
 template <class T>
 string Edge<T>::toString()
 {
-    // TODO: Return the string representation of the edge
-    if (this->from == nullptr ||
-        this->to == nullptr ||
-        this->from->vertex2str == nullptr ||
-        this->to->vertex2str == nullptr)
-    {
-        return "";
-    }
-
-    string fromStr = this->from->vertex2str(this->from->vertex);
-    string toStr = this->to->vertex2str(this->to->vertex);
-
-    // Format: Edge: from A to B, weight = X.
-    return "Edge: from " + fromStr + " to " + toStr +
-           ", weight = " + to_string(this->weight) + ".";
+    stringstream ss;
+    ss << "(" << from->getVertex() << ", "
+       << to->getVertex() << ", "
+       << weight << ")";
+    return ss.str();
 }
 
 // =============================================================================
@@ -136,30 +126,26 @@ int VertexNode<T>::outDegree()
 template <class T>
 string VertexNode<T>::toString()
 {
-    string vertexStr = "";
+    stringstream ss;
+    ss << "(" << vertex << ", "
+       << inDegree << ", "
+       << outDegree << ", [";
 
-    if (this->vertex2str != nullptr)
-        vertexStr = this->vertex2str(this->vertex);
+    for (size_t i = 0; i < adList.size(); ++i)
+    {
+        ss << adList[i]->toString();
+        if (i + 1 < adList.size())
+            ss << ", ";
+    }
 
-    // Format: Vertex is V, in-degree = ID, out-degree = OD.
-    return "Vertex is " + vertexStr + ", in-degree = " + to_string(this->inDegree_) +
-           ", out-degree = " + to_string(this->outDegree_) + ".";
+    ss << "])";
+    return ss.str();
 }
 
-// Not implement
 template <class T>
-std::vector<T> VertexNode<T>::getOutwardEdges()
+std::vector<Edge<T> *> VertexNode<T>::getOutwardEdges()
 {
-    vector<T> result;
-
-    // for (Edge<T>* edge : this->adList)
-    //     result.push_back(edge->to->vertex);
-
-    // return result;
-
-    // return this->adList;
-    return result;
-    // Should return in vector<Edge<T> *> ???
+    return this->adList;
 }
 
 // =============================================================================
@@ -254,9 +240,8 @@ float DGraphModel<T>::weight(T from, T to)
     return edge->weight;
 }
 
-// Not implement
 template <class T>
-std::vector<T> DGraphModel<T>::getOutwardEdges(T from)
+std::vector<Edge<T> *> DGraphModel<T>::getOutwardEdges(T from)
 {
     // Find vertex from
     VertexNode<T> *fromNode = this->getVertexNode(from);
@@ -266,8 +251,6 @@ std::vector<T> DGraphModel<T>::getOutwardEdges(T from)
         throw VertexNotFoundException();
 
     return fromNode->getOutwardEdges();
-
-    // Should return in vector<Edge<T> *> ???
 }
 
 template <class T>
@@ -379,35 +362,18 @@ std::vector<T> DGraphModel<T>::vertices()
 template <class T>
 string DGraphModel<T>::toString()
 {
-    string s;
+    stringstream ss;
+    ss << "[";
 
-    // Verticles list
-    s += "Vertices:\n";
-    for (auto vertex : this->nodeList)
+    for (size_t i = 0; i < nodeList.size(); ++i)
     {
-        if (vertex != nullptr)
-        {
-            s += "  " + vertex->toString() + "\n";
-        }
+        ss << nodeList[i]->toString();
+        if (i + 1 < nodeList.size())
+            ss << ", ";
     }
 
-    // Edge list
-    s += "Edges:\n";
-    for (auto vertex : this->nodeList)
-    {
-        if (vertex == nullptr)
-            continue;
-
-        for (auto edge : vertex->adList)
-        {
-            if (edge != nullptr)
-            {
-                s += "  " + edge->toString() + "\n";
-            }
-        }
-    }
-
-    return s;
+    ss << "]";
+    return ss.str();
 }
 
 // Not implement

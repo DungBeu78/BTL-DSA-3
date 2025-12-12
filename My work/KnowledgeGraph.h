@@ -67,7 +67,7 @@ public:
     int outDegree();
     string toString();
 
-    vector<T> getOutwardEdges();
+    vector<Edge<T>*> getOutwardEdges();
 
     friend class Edge<T>;
     friend class DGraphModel<T>;
@@ -100,7 +100,7 @@ public:
     void add(T vertex);
     bool contains(T vertex);
     float weight(T from, T to);
-    vector<T> getOutwardEdges(T from);
+    vector<Edge<T>*> getOutwardEdges(T from);
 
     void connect(T from, T to, float weight = 0);
     void disconnect(T from, T to);
