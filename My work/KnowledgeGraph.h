@@ -32,6 +32,8 @@ public:
     static bool edgeEQ(Edge<T> *&edge1, Edge<T> *&edge2) { return edge1->equals(edge2); }
     string toString();
 
+    VertexNode<T> *getTo() { return to; }
+
     friend class VertexNode<T>;
     friend class DGraphModel<T>;
 };
@@ -67,7 +69,7 @@ public:
     int outDegree();
     string toString();
 
-    vector<Edge<T>*> getOutwardEdges();
+    vector<Edge<T> *> getOutwardEdges();
 
     friend class Edge<T>;
     friend class DGraphModel<T>;
@@ -100,7 +102,7 @@ public:
     void add(T vertex);
     bool contains(T vertex);
     float weight(T from, T to);
-    vector<Edge<T>*> getOutwardEdges(T from);
+    vector<Edge<T> *> getOutwardEdges(T from);
 
     void connect(T from, T to, float weight = 0);
     void disconnect(T from, T to);
@@ -117,6 +119,12 @@ public:
     string toString();
     string BFS(T start);
     string DFS(T start);
+
+    void DFS_helper(
+        VertexNode<T> *u,
+        vector<VertexNode<T> *> &visited,
+        stringstream &ss,
+        bool &first);
 };
 
 // =====================================
@@ -148,6 +156,11 @@ public:
 
     vector<string> getRelatedEntities(string entity, int depth = 2);
     string findCommonAncestors(string entity1, string entity2);
+
+    vector<string> getIncomingNeighbors(const string &target);
+    void reverseBfsDistances(const string &start,
+                            vector<string> &nodes,
+                            vector<int> &dist);
 };
 
 #endif // KNOWLEDGEGRAPH_H

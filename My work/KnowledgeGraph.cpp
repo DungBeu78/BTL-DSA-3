@@ -376,18 +376,115 @@ string DGraphModel<T>::toString()
     return ss.str();
 }
 
-// Not implement
 template <class T>
-std::string DGraphModel<T>::BFS(T start)
+string DGraphModel<T>::BFS(T start)
 {
-    return "";
+    if (this->nodeList.size() == 0)
+        return "[]";
+
+    VertexNode<T> *startNode = this->getVertexNode(start);
+    if (startNode == nullptr)
+        throw VertexNotFoundException();
+
+    vector<VertexNode<T> *> visited;
+    vector<VertexNode<T> *> q;
+    int idx = 0;
+
+    visited.push_back(startNode);
+    q.push_back(startNode);
+
+    stringstream ss;
+    ss << "[";
+    bool first = true;
+
+    while (idx < (int)q.size())
+    {
+        VertexNode<T> *u = q[idx++];
+
+        if (!first)
+            ss << ", ";
+        ss << this->vertex2Str(*u);
+        first = false;
+
+        vector<Edge<T> *> edges = u->getOutwardEdges();
+        for (Edge<T> *e : edges)
+        {
+            VertexNode<T> *v = e->getTo();
+
+            bool seen = false;
+            for (VertexNode<T> *x : visited)
+            {
+                if (x == v)
+                {
+                    seen = true;
+                    break;
+                }
+            }
+
+            if (!seen)
+            {
+                visited.push_back(v);
+                q.push_back(v);
+            }
+        }
+    }
+
+    ss << "]";
+    return ss.str();
 }
 
-// Not implement
 template <class T>
-std::string DGraphModel<T>::DFS(T start)
+void DGraphModel<T>::DFS_helper(
+    VertexNode<T> *u,
+    vector<VertexNode<T> *> &visited,
+    stringstream &ss,
+    bool &first)
 {
-    return "";
+    visited.push_back(u);
+
+    if (!first)
+        ss << ", ";
+    ss << this->vertex2Str(*u);
+    first = false;
+
+    vector<Edge<T> *> edges = u->getOutwardEdges();
+    for (Edge<T> *e : edges)
+    {
+        VertexNode<T> *v = e->getTo(); // bạn đã thêm getTo() cho Edge rồi
+
+        bool seen = false;
+        for (VertexNode<T> *x : visited)
+        {
+            if (x == v)
+            {
+                seen = true;
+                break;
+            }
+        }
+        if (!seen)
+            dfs_helper(v, visited, ss, first);
+    }
+}
+
+template <class T>
+string DGraphModel<T>::DFS(T start)
+{
+    if (this->nodeList.size() == 0)
+        return "[]";
+
+    VertexNode<T> *startNode = this->getVertexNode(start);
+    if (startNode == nullptr)
+        throw VertexNotFoundException();
+
+    vector<VertexNode<T> *> visited;
+    stringstream ss;
+    ss << "[";
+    bool first = true;
+
+    dfs_helper(startNode, visited, ss, first);
+
+    ss << "]";
+    return ss.str();
 }
 
 // =============================================================================
@@ -397,19 +494,290 @@ std::string DGraphModel<T>::DFS(T start)
 KnowledgeGraph::KnowledgeGraph()
 {
     // TODO: Initialize the KnowledgeGraph
+    this->graph = DGraphModel<string>();
+    this->entities = vector<string>();
 }
 
 void KnowledgeGraph::addEntity(string entity)
 {
     // TODO: Add a new entity to the Knowledge Graph
+    if (this->graph.contains(entity))
+        throw EntityExistsException();
+
+    this->graph.add(entity);
+    this->entities.push_back(entity);
 }
 
 void KnowledgeGraph::addRelation(string from, string to, float weight)
 {
     // TODO: Add a directed relation
+    if (!this->graph.contains(from) || !this->graph.contains(to))
+        throw EntityNotFoundException();
+
+    this->graph.connect(from, to, weight);
 }
 
 // TODO: Implement other methods of KnowledgeGraph:
+
+vector<string> KnowledgeGraph::getAllEntities()
+{
+    return this->entities;
+}
+
+vector<string> KnowledgeGraph::getNeighbors(string entity)
+{
+    if (!this->graph.contains(entity))
+        throw EntityNotFoundException();
+
+    vector<Edge<string> *> edges = this->graph.getOutwardEdges(entity);
+    vector<string> neighbors;
+
+    for (Edge<string> *edge : edges)
+    {
+        neighbors.push_back(edge->getTo()->getVertex());
+    }
+
+    return neighbors;
+}
+
+string KnowledgeGraph::bfs(string start)
+{
+    if (!this->graph.contains(start))
+        throw EntityNotFoundException();
+
+    return this->graph.BFS(start);
+}
+
+string KnowledgeGraph::dfs(string start)
+{
+    if (!this->graph.contains(start))
+        throw EntityNotFoundException();
+
+    return this->graph.DFS(start);
+}
+
+bool KnowledgeGraph::isReachable(string from, string to)
+{
+    if (!this->graph.contains(from) || !this->graph.contains(to))
+        throw EntityNotFoundException();
+
+    vector<string> visited;
+    vector<string> q;
+    int idx = 0;
+
+    visited.push_back(from);
+    q.push_back(from);
+
+    while (idx < (int)q.size())
+    {
+        string current = q[idx++];
+
+        if (current == to)
+            return true;
+
+        vector<Edge<string> *> edges = this->graph.getOutwardEdges(current);
+        for (Edge<string> *edge : edges)
+        {
+            string neighbor = edge->getTo()->getVertex();
+
+            bool seen = false;
+            for (string &v : visited)
+            {
+                if (v == neighbor)
+                {
+                    seen = true;
+                    break;
+                }
+            }
+
+            if (!seen)
+            {
+                visited.push_back(neighbor);
+                q.push_back(neighbor);
+            }
+        }
+    }
+
+    return false;
+}
+
+string KnowledgeGraph::toString()
+{
+    return this->graph.toString();
+}
+
+vector<string> KnowledgeGraph::getRelatedEntities(string entity, int depth)
+{
+    if (!this->graph.contains(entity))
+        throw EntityNotFoundException();
+
+    // depth <= 0 -> không có liên quan nào (không tính chính nó)
+    if (depth <= 0)
+        return vector<string>();
+
+    vector<string> related; // kết quả, không trùng
+    vector<string> qNode;   // queue giả: danh sách node
+    vector<int> qDepth;     // queue giả: độ sâu tương ứng
+    int idx = 0;
+
+    qNode.push_back(entity);
+    qDepth.push_back(0);
+
+    while (idx < (int)qNode.size())
+    {
+        string current = qNode[idx];
+        int currDepth = qDepth[idx];
+        idx++;
+
+        if (currDepth >= depth)
+            continue;
+
+        vector<Edge<string> *> edges = this->graph.getOutwardEdges(current);
+        for (Edge<string> *edge : edges)
+        {
+            string neighbor = edge->getTo()->getVertex();
+            if (neighbor == entity)
+                continue;
+
+            // check duplicate trong related
+            bool existed = false;
+            for (string &s : related)
+            {
+                if (s == neighbor)
+                {
+                    existed = true;
+                    break;
+                }
+            }
+
+            if (!existed)
+            {
+                related.push_back(neighbor);
+                qNode.push_back(neighbor);
+                qDepth.push_back(currDepth + 1);
+            }
+        }
+    }
+
+    return related;
+}
+
+string KnowledgeGraph::findCommonAncestors(string entity1, string entity2)
+{
+    if (!this->graph.contains(entity1) || !this->graph.contains(entity2))
+        throw EntityNotFoundException();
+
+    vector<string> a1, a2;
+    vector<int> d1, d2;
+
+    reverseBfsDistances(entity1, a1, d1);
+    reverseBfsDistances(entity2, a2, d2);
+
+    // tìm ancestor chung có d1+d2 nhỏ nhất
+    string best = "";
+    int bestSum = 0;
+
+    for (int i = 0; i < (int)a1.size(); ++i)
+    {
+        for (int j = 0; j < (int)a2.size(); ++j)
+        {
+            if (a1[i] == a2[j])
+            {
+                int sum = d1[i] + d2[j];
+                if (best == "" || sum < bestSum)
+                {
+                    best = a1[i];
+                    bestSum = sum;
+                }
+            }
+        }
+    }
+
+    if (best == "")
+        return "No common ancestor";
+    return best;
+}
+
+vector<string> KnowledgeGraph::getIncomingNeighbors(const string &target)
+{
+    vector<string> incoming;
+    vector<string> all = this->getAllEntities(); // entities list trong KG
+
+    for (string &u : all)
+    {
+        vector<Edge<string> *> edges = this->graph.getOutwardEdges(u);
+        for (Edge<string> *e : edges)
+        {
+            string v = e->getTo()->getVertex();
+            if (v == target)
+            {
+                // tránh trùng
+                bool seen = false;
+                for (string &x : incoming)
+                    if (x == u)
+                    {
+                        seen = true;
+                        break;
+                    }
+                if (!seen)
+                    incoming.push_back(u);
+            }
+        }
+    }
+    return incoming;
+}
+
+void KnowledgeGraph::reverseBfsDistances(
+    const string &start,
+    vector<string> &nodes,
+    vector<int> &dist)
+{
+    nodes.clear();
+    dist.clear();
+
+    vector<string> q;
+    vector<int> qd;
+    int idx = 0;
+
+    q.push_back(start);
+    qd.push_back(0);
+
+    // visited list
+    vector<string> visited;
+    visited.push_back(start);
+
+    while (idx < (int)q.size())
+    {
+        string cur = q[idx];
+        int cd = qd[idx];
+        idx++;
+
+        // ancestors: không tính chính nó nếu bạn muốn
+        if (cur != start)
+        {
+            nodes.push_back(cur);
+            dist.push_back(cd);
+        }
+
+        vector<string> incoming = getIncomingNeighbors(cur);
+        for (string &p : incoming)
+        {
+            bool seen = false;
+            for (string &v : visited)
+                if (v == p)
+                {
+                    seen = true;
+                    break;
+                }
+            if (!seen)
+            {
+                visited.push_back(p);
+                q.push_back(p);
+                qd.push_back(cd + 1);
+            }
+        }
+    }
+}
 
 // =============================================================================
 // Explicit Template Instantiation
