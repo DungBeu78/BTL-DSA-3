@@ -128,19 +128,19 @@ string VertexNode<T>::toString()
 {
     stringstream ss;
     ss << "(" << vertex << ", "
-       << inDegree << ", "
-       << outDegree << ", [";
+       << this->inDegree() << ", "
+       << this->outDegree() << ", [";
 
     for (size_t i = 0; i < adList.size(); ++i)
     {
         ss << adList[i]->toString();
-        if (i + 1 < adList.size())
-            ss << ", ";
+        if (i + 1 < adList.size()) ss << ", ";
     }
 
     ss << "])";
     return ss.str();
 }
+
 
 template <class T>
 std::vector<Edge<T> *> VertexNode<T>::getOutwardEdges()
@@ -462,7 +462,7 @@ void DGraphModel<T>::DFS_helper(
             }
         }
         if (!seen)
-            dfs_helper(v, visited, ss, first);
+            DFS_helper(v, visited, ss, first);
     }
 }
 
@@ -481,7 +481,7 @@ string DGraphModel<T>::DFS(T start)
     ss << "[";
     bool first = true;
 
-    dfs_helper(startNode, visited, ss, first);
+    DFS_helper(startNode, visited, ss, first);
 
     ss << "]";
     return ss.str();
