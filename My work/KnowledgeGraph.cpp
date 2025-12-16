@@ -31,11 +31,10 @@ bool Edge<T>::equals(Edge<T> *edge)
 template <class T>
 string Edge<T>::toString()
 {
-    stringstream ss;
-    ss << "(" << from->getVertex() << ", "
-       << to->getVertex() << ", "
-       << weight << ")";
-    return ss.str();
+    string fromStr = (from->vertex2str ? from->vertex2str(from->vertex) : "");
+    string toStr = (to->vertex2str ? to->vertex2str(to->vertex) : "");
+
+    return "(" + fromStr + ", " + toStr + ", " + to_string(weight) + ")";
 }
 
 // =============================================================================
@@ -64,18 +63,20 @@ void VertexNode<T>::connect(VertexNode<T> *to, float weight)
     // TODO: Connect this vertex to the 'to' vertex
     Edge<T> *newEdge = new Edge<T>(this, to, weight);
 
+    // Update adjacency list
     this->adList.push_back(newEdge);
+    to->adList.push_back(newEdge);
 
     // Update data
-    to->inDegree_++;
     this->outDegree_++;
+    to->inDegree_++;
 }
 
 template <class T>
 Edge<T> *VertexNode<T>::getEdge(VertexNode<T> *to)
 {
     for (Edge<T> *edge : this->adList)
-        if (edge->to == to)
+        if (edge != nullptr && edge->to == to && edge->from == this)
             return edge;
     return nullptr;
 }
@@ -89,26 +90,35 @@ bool VertexNode<T>::equals(VertexNode<T> *node)
 template <class T>
 void VertexNode<T>::removeTo(VertexNode<T> *to)
 {
-    Edge<T> *toRemove = this->getEdge(to);
-
-    if (toRemove == nullptr)
+    Edge<T> *edge = this->getEdge(to);
+    if (edge == nullptr)
         return;
 
-    // Update data
-    this->outDegree_--;
-    to->inDegree_--;
-
-    for (auto it = this->adList.begin(); it != this->adList.end(); it++)
+    // Update adjacency list
+    for (auto it = this->adList.begin(); it != this->adList.end(); ++it)
     {
-        if (*it == toRemove)
+        if (*it == edge)
         {
             this->adList.erase(it);
             break;
         }
     }
 
-    // Remove
-    delete toRemove;
+    for (auto it = to->adList.begin(); it != to->adList.end(); ++it)
+    {
+        if (*it == edge)
+        {
+            to->adList.erase(it);
+            break;
+        }
+    }
+
+    // Update data
+    this->outDegree_--;
+    to->inDegree_--;
+
+    // Delete edge
+    delete edge;
 }
 
 template <class T>
@@ -134,18 +144,24 @@ string VertexNode<T>::toString()
     for (size_t i = 0; i < adList.size(); ++i)
     {
         ss << adList[i]->toString();
-        if (i + 1 < adList.size()) ss << ", ";
+        if (i + 1 < adList.size())
+            ss << ", ";
     }
 
     ss << "])";
     return ss.str();
 }
 
-
 template <class T>
 std::vector<Edge<T> *> VertexNode<T>::getOutwardEdges()
 {
-    return this->adList;
+    vector<Edge<T> *> out;
+    for (Edge<T> *edge : this->adList)
+    {
+        if (edge != nullptr && edge->from == this)
+            out.push_back(edge);
+    }
+    return out;
 }
 
 // =============================================================================
@@ -312,14 +328,20 @@ bool DGraphModel<T>::empty()
 template <class T>
 void DGraphModel<T>::clear()
 {
-    for (VertexNode<T> *vertex : this->nodeList)
+    for (VertexNode<T> *node : nodeList)
     {
-        for (Edge<T> *edge : vertex->adList)
-            delete edge;
-        delete vertex;
+        for (Edge<T> *edge : node->adList)
+        {
+            if (edge != nullptr && edge->from == node)
+                delete edge;
+        }
+        node->adList.clear();
     }
 
-    this->nodeList.clear();
+    // Delete nodes
+    for (VertexNode<T> *node : nodeList)
+        delete node;
+    nodeList.clear();
 }
 
 template <class T>
