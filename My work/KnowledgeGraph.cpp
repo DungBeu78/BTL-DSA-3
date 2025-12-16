@@ -94,7 +94,13 @@ Edge<T> *VertexNode<T>::getEdge(VertexNode<T> *to)
 template <class T>
 bool VertexNode<T>::equals(VertexNode<T> *node)
 {
-    return this->vertexEQ(this->vertex, node->vertex);
+    if (node == nullptr)
+        return false;
+
+    if (this->vertexEQ != nullptr)
+        return this->vertexEQ(this->vertex, node->vertex);
+
+    return this->vertex == node->vertex;
 }
 
 template <class T>
@@ -200,15 +206,19 @@ VertexNode<T> *DGraphModel<T>::getVertexNode(T &vertex)
     for (VertexNode<T> *current : this->nodeList)
     {
         if (this->vertexEQ != nullptr)
+        {
             if (this->vertexEQ(current->vertex, vertex))
                 return current;
+        }
         else
+        {
             if (current->vertex == vertex)
                 return current;
+        }
     }
     return nullptr;
 }
- 
+
 template <class T>
 std::string DGraphModel<T>::vertex2Str(VertexNode<T> &node)
 {
@@ -243,10 +253,15 @@ bool DGraphModel<T>::contains(T vertex)
     for (VertexNode<T> *current : this->nodeList)
     {
         if (this->vertexEQ != nullptr)
+        {
             if (this->vertexEQ(current->vertex, vertex))
                 return true;
-            else if (current->vertex == vertex)
+        }
+        else
+        {
+            if (current->vertex == vertex)
                 return true;
+        }
     }
     return false;
 }
