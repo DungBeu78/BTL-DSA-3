@@ -31,8 +31,18 @@ bool Edge<T>::equals(Edge<T> *edge)
 template <class T>
 string Edge<T>::toString()
 {
-    string fromStr = (from->vertex2str ? from->vertex2str(from->vertex) : "");
-    string toStr = (to->vertex2str ? to->vertex2str(to->vertex) : "");
+    string fromStr;
+    string toStr;
+
+    if (from != nullptr && from->vertex2str != nullptr)
+        fromStr = from->vertex2str(from->vertex);
+    else
+        fromStr = "";
+
+    if (to != nullptr && to->vertex2str != nullptr)
+        toStr = to->vertex2str(to->vertex);
+    else
+        toStr = "";
 
     return "(" + fromStr + ", " + toStr + ", " + to_string(weight) + ")";
 }
@@ -435,9 +445,9 @@ string DGraphModel<T>::BFS(T start)
         first = false;
 
         vector<Edge<T> *> edges = u->getOutwardEdges();
-        for (Edge<T> *e : edges)
+        for (Edge<T> *edge : edges)
         {
-            VertexNode<T> *v = e->getTo();
+            VertexNode<T> *v = edge->getTo();
 
             bool seen = false;
             for (VertexNode<T> *x : visited)
@@ -476,9 +486,9 @@ void DGraphModel<T>::DFS_helper(
     first = false;
 
     vector<Edge<T> *> edges = u->getOutwardEdges();
-    for (Edge<T> *e : edges)
+    for (Edge<T> *edge : edges)
     {
-        VertexNode<T> *v = e->getTo(); // bạn đã thêm getTo() cho Edge rồi
+        VertexNode<T> *v = edge->getTo();
 
         bool seen = false;
         for (VertexNode<T> *x : visited)
@@ -644,13 +654,12 @@ vector<string> KnowledgeGraph::getRelatedEntities(string entity, int depth)
     if (!this->graph.contains(entity))
         throw EntityNotFoundException();
 
-    // depth <= 0 -> không có liên quan nào (không tính chính nó)
     if (depth <= 0)
         return vector<string>();
 
-    vector<string> related; // kết quả, không trùng
-    vector<string> qNode;   // queue giả: danh sách node
-    vector<int> qDepth;     // queue giả: độ sâu tương ứng
+    vector<string> related;
+    vector<string> qNode;
+    vector<int> qDepth;
     int idx = 0;
 
     qNode.push_back(entity);
@@ -672,7 +681,6 @@ vector<string> KnowledgeGraph::getRelatedEntities(string entity, int depth)
             if (neighbor == entity)
                 continue;
 
-            // check duplicate trong related
             bool existed = false;
             for (string &s : related)
             {
@@ -706,7 +714,6 @@ string KnowledgeGraph::findCommonAncestors(string entity1, string entity2)
     reverseBfsDistances(entity1, a1, d1);
     reverseBfsDistances(entity2, a2, d2);
 
-    // tìm ancestor chung có d1+d2 nhỏ nhất
     string best = "";
     int bestSum = 0;
 
@@ -734,7 +741,7 @@ string KnowledgeGraph::findCommonAncestors(string entity1, string entity2)
 vector<string> KnowledgeGraph::getIncomingNeighbors(const string &target)
 {
     vector<string> incoming;
-    vector<string> all = this->getAllEntities(); // entities list trong KG
+    vector<string> all = this->getAllEntities();
 
     for (string &u : all)
     {
@@ -744,7 +751,6 @@ vector<string> KnowledgeGraph::getIncomingNeighbors(const string &target)
             string v = e->getTo()->getVertex();
             if (v == target)
             {
-                // tránh trùng
                 bool seen = false;
                 for (string &x : incoming)
                     if (x == u)
@@ -775,7 +781,6 @@ void KnowledgeGraph::reverseBfsDistances(
     q.push_back(start);
     qd.push_back(0);
 
-    // visited list
     vector<string> visited;
     visited.push_back(start);
 
@@ -785,7 +790,6 @@ void KnowledgeGraph::reverseBfsDistances(
         int cd = qd[idx];
         idx++;
 
-        // ancestors: không tính chính nó nếu bạn muốn
         if (cur != start)
         {
             nodes.push_back(cur);
