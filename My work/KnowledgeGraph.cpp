@@ -189,13 +189,16 @@ VertexNode<T> *DGraphModel<T>::getVertexNode(T &vertex)
 {
     for (VertexNode<T> *current : this->nodeList)
     {
-        if (this->vertexEQ(current->vertex, vertex))
-            return current;
+        if (this->vertexEQ != nullptr)
+            if (this->vertexEQ(current->vertex, vertex))
+                return current;
+        else
+            if (current->vertex == vertex)
+                return current;
     }
-
     return nullptr;
 }
-
+ 
 template <class T>
 std::string DGraphModel<T>::vertex2Str(VertexNode<T> &node)
 {
@@ -229,8 +232,11 @@ bool DGraphModel<T>::contains(T vertex)
 {
     for (VertexNode<T> *current : this->nodeList)
     {
-        if (this->vertexEQ(current->vertex, vertex))
-            return true;
+        if (this->vertexEQ != nullptr)
+            if (this->vertexEQ(current->vertex, vertex))
+                return true;
+            else if (current->vertex == vertex)
+                return true;
     }
     return false;
 }
@@ -516,7 +522,12 @@ string DGraphModel<T>::DFS(T start)
 KnowledgeGraph::KnowledgeGraph()
 {
     // TODO: Initialize the KnowledgeGraph
-    this->graph = DGraphModel<string>();
+    auto vertexEQ = [](string &a, string &b) -> bool
+    { return a == b; };
+    auto vertex2str = [](string &s) -> string
+    { return s; };
+
+    this->graph = DGraphModel<string>(vertexEQ, vertex2str);
     this->entities = vector<string>();
 }
 
