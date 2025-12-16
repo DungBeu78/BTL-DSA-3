@@ -25,7 +25,17 @@ Edge<T>::Edge(VertexNode<T> *from, VertexNode<T> *to, float weight)
 template <class T>
 bool Edge<T>::equals(Edge<T> *edge)
 {
+    if (edge == nullptr)
+        return false;
     return (this->from == edge->from && this->to == edge->to);
+}
+
+template <class T>
+bool Edge<T>::edgeEQ(Edge<T> *&edge1, Edge<T> *&edge2)
+{
+    if (edge1 == nullptr || edge2 == nullptr)
+        return false;
+    return edge1->equals(edge2);
 }
 
 template <class T>
@@ -761,9 +771,9 @@ vector<string> KnowledgeGraph::getIncomingNeighbors(const string &target)
     for (string &u : all)
     {
         vector<Edge<string> *> edges = this->graph.getOutwardEdges(u);
-        for (Edge<string> *e : edges)
+        for (Edge<string> *edge : edges)
         {
-            string v = e->getTo()->getVertex();
+            string v = edge->getTo()->getVertex();
             if (v == target)
             {
                 bool seen = false;
@@ -789,6 +799,9 @@ void KnowledgeGraph::reverseBfsDistances(
     nodes.clear();
     dist.clear();
 
+    nodes.push_back(start);
+    dist.push_back(0);
+
     vector<string> q;
     vector<int> qd;
     int idx = 0;
@@ -801,17 +814,11 @@ void KnowledgeGraph::reverseBfsDistances(
 
     while (idx < (int)q.size())
     {
-        string cur = q[idx];
+        string current = q[idx];
         int cd = qd[idx];
         idx++;
 
-        if (cur != start)
-        {
-            nodes.push_back(cur);
-            dist.push_back(cd);
-        }
-
-        vector<string> incoming = getIncomingNeighbors(cur);
+        vector<string> incoming = getIncomingNeighbors(current);
         for (string &p : incoming)
         {
             bool seen = false;
@@ -824,6 +831,10 @@ void KnowledgeGraph::reverseBfsDistances(
             if (!seen)
             {
                 visited.push_back(p);
+
+                nodes.push_back(p);
+                dist.push_back(cd + 1);
+
                 q.push_back(p);
                 qd.push_back(cd + 1);
             }
